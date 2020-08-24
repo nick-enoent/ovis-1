@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # Copyright (c) 2018 National Technology & Engineering Solutions
 # of Sandia, LLC (NTESS). Under the terms of Contract DE-NA0003525 with
@@ -52,6 +52,9 @@
 #   - munged, munge
 #   - run as root
 
+from past.builtins import execfile
+from builtins import range
+from builtins import object
 import re
 import os
 import pdb
@@ -78,9 +81,11 @@ class Debug(object): pass
 
 DEBUG = Debug()
 
+ldms.init(512*1024*1024) # 512MB should suffice
+
 DIR = "%s/munge_dir" % (sys.path[0] if sys.path[0] else  os.getcwd())
 shutil.rmtree(DIR, ignore_errors = True)
-os.makedirs(DIR, mode=0755)
+os.makedirs(DIR, mode=0o755)
 
 class Munged(object):
     """Munge Daemon"""
@@ -92,7 +97,7 @@ class Munged(object):
         self.socket = socket if socket else DIR + "/munge_sock"
         self.log = log if log else DIR + "/munge_log"
         self.keyfile = keyfile if keyfile else DIR + "/munge_key"
-        self.pidfile = pidfile if pidfile else DIR + "/munge_pid"
+        #self.pidfile = pidfile if pidfile else DIR + "/munge_pid"
         self.uid = uid if uid else os.getuid()
         self.gid = gid if gid else os.getgid()
         self.proc = None
@@ -102,7 +107,7 @@ class Munged(object):
     def write_keyfile(self, key):
         with open(self.keyfile, "w") as f:
             f.write(key)
-        os.chmod(self.keyfile, 0600)
+        os.chmod(self.keyfile, 0o600)
         os.chown(self.keyfile, self.uid, self.gid)
 
     def _preexec(self):
@@ -118,7 +123,7 @@ class Munged(object):
             '-f',
             '-S', self.socket,
             '--key-file', self.keyfile,
-            '--pid-file', self.pidfile,
+            #'--pid-file', self.pidfile,
         ]
         null = open(os.devnull, "r+")
         self.proc = Popen(args,
@@ -153,7 +158,7 @@ def ldms_ls(xprt, port, auth, auth_opt=None, uid=os.getuid(), gid=os.getgid()):
         '-a', auth,
     ]
     if auth_opt:
-        for k, v in auth_opt.iteritems():
+        for k, v in auth_opt.items():
             args.extend(['-A', '%s=%s' % (k, v)])
     def _px():
         os.setgid(gid)
@@ -164,7 +169,7 @@ def ldms_ls(xprt, port, auth, auth_opt=None, uid=os.getuid(), gid=os.getgid()):
 
 class TestLDMSAuthMunge(unittest.TestCase):
     XPRT = "sock"
-    PORT = "10001"
+    PORT = "10201"
     AUTH = "munge"
 
     @classmethod
@@ -180,7 +185,6 @@ class TestLDMSAuthMunge(unittest.TestCase):
         cls.ldmsd = None
         try:
             log.info("--- Setting up %s ---" % cls.__name__)
-            ldms.ldms_init(512*1024*1024) # 512MB should suffice
 
             cls.munged = Munged(key = ''.join ('0' for i in range(0, 1024)))
             cls.munged.start()
@@ -210,7 +214,7 @@ class TestLDMSAuthMunge(unittest.TestCase):
             cls.ldmsd.run()
             time.sleep(1)
             log.info("--- Done setting up %s ---" % cls.__name__)
-        except Exception, e:
+        except Exception as e:
             del cls.ldmsd
             del cls.munged
             raise
@@ -224,7 +228,10 @@ class TestLDMSAuthMunge(unittest.TestCase):
     def test_01(self):
         """ldms_ls as root, expect root-owned dir"""
         dirs = ldms_ls(self.XPRT, self.PORT, self.AUTH, self.AUTH_OPT)
-        self.assertEqual(dirs, ['smp/meminfo'])
+        _dirs = []
+        for d in dirs:
+            _dirs.append(d.decode())
+        self.assertEqual(_dirs, ['smp/vmstat', 'smp/meminfo'])
 
     def test_02(self):
         """ldms_ls as user#1, expect user#1-owned dir"""

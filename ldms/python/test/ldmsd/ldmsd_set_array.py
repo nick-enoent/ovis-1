@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 # Copyright (c) 2018 National Technology & Engineering Solutions
 # of Sandia, LLC (NTESS). Under the terms of Contract DE-NA0003525 with
@@ -49,6 +49,8 @@
 
 # Test LDMSD with set array capability
 
+from past.builtins import execfile
+from builtins import object, zip
 import logging
 import unittest
 import threading
@@ -72,6 +74,8 @@ DEBUG = Debug()
 
 uS = 1e-6 # usec to sec
 
+ldms.init(512*1024*1024) # 512MB should suffice
+
 class TestLDMSDSetArray(unittest.TestCase):
     XPRT = "sock"
     SMP_PORT = "10001"
@@ -93,7 +97,6 @@ class TestLDMSDSetArray(unittest.TestCase):
         cls.agg = None
         log.info("--- Setting up TestLDMSDSetArray ---")
         try:
-            ldms.ldms_init(512*1024*1024) # 512MB should suffice
 
             # ldmsd sampler conf
             cfg = """\
@@ -138,7 +141,7 @@ class TestLDMSDSetArray(unittest.TestCase):
         updtr_start name=updtr
 
         load name=store_csv
-        config name=store_csv action=init path=csv buffer=0
+        config name=store_csv path=csv buffer=0
         strgp_add name=strgp plugin=store_csv container=csv1 schema=meminfo
         strgp_prdcr_add name=strgp regex=prdcr
         strgp_start name=strgp
@@ -149,16 +152,17 @@ class TestLDMSDSetArray(unittest.TestCase):
         }
         agg = LDMSD(port=self.AGG_PORT, cfg=cfg, logfile=self.AGG_LOG,
                         gdb_port=self.AGG_GDB_PORT)
-        DEBUG.agg = agg
+        #DEBUG.agg = agg
         log.info("starting aggregator")
         agg.run()
         log.info("collecting data")
         time.sleep(2 + 2*self.AGG_INT*uS)
-        agg.term()
+        #agg.term()
         time.sleep(0.25)
         log.info("Verifying Data")
         # expecting to see a bunch of data, with dt ~ self.SMP_INT usec
         f = open("csv/csv1/meminfo")
+        del agg
         lines = f.readlines()
         lines = lines[1:] # the [0] is the header
         rexp = re.compile("^(\d+\.\d+),.*$")
@@ -188,7 +192,7 @@ class TestLDMSDSetArray(unittest.TestCase):
         }
         agg = LDMSD(port=self.AGG_PORT, cfg=cfg, logfile=self.AGG_LOG,
                         gdb_port=self.AGG_GDB_PORT)
-        DEBUG.agg = agg
+        #DEBUG.agg = agg
         log.info("starting aggregator-1")
         agg.run()
         cfg = """\
@@ -201,7 +205,7 @@ class TestLDMSDSetArray(unittest.TestCase):
         updtr_start name=updtr
 
         load name=store_csv
-        config name=store_csv action=init path=csv buffer=0
+        config name=store_csv path=csv buffer=0
         strgp_add name=strgp plugin=store_csv container=csv2 schema=meminfo
         strgp_prdcr_add name=strgp regex=prdcr
         strgp_start name=strgp
@@ -212,13 +216,15 @@ class TestLDMSDSetArray(unittest.TestCase):
         }
         agg2 = LDMSD(port=self.AGG2_PORT, cfg=cfg, logfile=self.AGG2_LOG,
                         gdb_port=self.AGG2_GDB_PORT)
-        DEBUG.agg2 = agg2
+        #DEBUG.agg2 = agg2
         log.info("starting aggregator-2")
         agg2.run()
         log.info("collecting data")
         time.sleep(2 + 3*self.AGG_INT*uS)
-        agg.term()
-        agg2.term()
+        #agg.term()
+        #agg2.term()
+        del agg
+        del agg2
         time.sleep(0.25)
         log.info("Verifying Data")
         # expecting to see a bunch of data, with dt ~ self.SMP_INT usec

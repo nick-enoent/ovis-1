@@ -407,7 +407,11 @@ class LDMSD(object):
         if not self.proc:
             return False
         self.proc.poll()
-        return self.proc.returncode == 0
+        #return self.proc.returncode == 0
+        if self.proc.returncode == 0 or self.proc.returncode == None:
+            return True
+        else:
+            return False
 
     def run(self):
         """Run the daemon"""
@@ -493,8 +497,10 @@ class LDMSD_Controller(object):
         if not self.proc:
             return False
         self.proc.poll()
-        return self.proc.returncode == None 
-
+        if self.proc.returncode == 0 or self.proc.returncode == None:
+            return True
+        else:
+            return False
     def run(self):
         """Run ldmsd_controller subprocess"""
         if self.proc:
