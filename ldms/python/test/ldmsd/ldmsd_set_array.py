@@ -49,7 +49,6 @@
 
 # Test LDMSD with set array capability
 
-from past.builtins import execfile
 from builtins import object, zip
 import logging
 import unittest
@@ -162,8 +161,8 @@ class TestLDMSDSetArray(unittest.TestCase):
         log.info("Verifying Data")
         # expecting to see a bunch of data, with dt ~ self.SMP_INT usec
         f = open("csv/csv1/meminfo")
-        del agg
         lines = f.readlines()
+        f.close()
         lines = lines[1:] # the [0] is the header
         rexp = re.compile("^(\d+\.\d+),.*$")
         ts = [ float(rexp.match(l).group(1)) for l in lines ]
@@ -192,7 +191,7 @@ class TestLDMSDSetArray(unittest.TestCase):
         }
         agg = LDMSD(port=self.AGG_PORT, cfg=cfg, logfile=self.AGG_LOG,
                         gdb_port=self.AGG_GDB_PORT)
-        #DEBUG.agg = agg
+        DEBUG.agg = agg
         log.info("starting aggregator-1")
         agg.run()
         cfg = """\
@@ -221,15 +220,14 @@ class TestLDMSDSetArray(unittest.TestCase):
         agg2.run()
         log.info("collecting data")
         time.sleep(2 + 3*self.AGG_INT*uS)
-        #agg.term()
-        #agg2.term()
-        del agg
-        del agg2
+        agg.term()
+        agg2.term()
         time.sleep(0.25)
         log.info("Verifying Data")
         # expecting to see a bunch of data, with dt ~ self.SMP_INT usec
         f = open("csv/csv2/meminfo")
         lines = f.readlines()
+        f.close()
         lines = lines[1:] # the [0] is the header
         rexp = re.compile("^(\d+\.\d+),.*$")
         ts = [ float(rexp.match(l).group(1)) for l in lines ]
@@ -241,16 +239,13 @@ class TestLDMSDSetArray(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    start = os.getenv("PYTHONSTARTUP")
-    if start:
-        execfile(start)
     fmt = "%(asctime)s.%(msecs)d %(levelname)s: %(message)s"
     datefmt = "%F %T"
     logging.basicConfig(
             format = fmt,
             datefmt = datefmt,
             level = logging.DEBUG,
-            filename = "ldmsd_auth_ovis.log",
+            filename = "ldmsd_set_array.log",
             filemode = "w",
     )
     log = logging.getLogger(__name__)

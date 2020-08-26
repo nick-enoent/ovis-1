@@ -49,9 +49,6 @@
 
 # Test LDMSD Failover capability.
 
-from past.builtins import execfile
-from future import standard_library
-standard_library.install_aliases()
 from builtins import input
 from builtins import str
 from builtins import range
@@ -305,7 +302,7 @@ class TestLDMSDFailover(unittest.TestCase):
         print('iblock\n')
         iblock("\nPress ENTER to terminate %s" % prdcr)
         print('kill ldmsd')
-        del(ldmsd)
+        ldmsd.term()
         time.sleep(4 * (INTERVAL/1000000.0))
         iblock("\nPress ENTER to veirfy")
         print('loop')
@@ -348,52 +345,6 @@ class TestLDMSDFailover(unittest.TestCase):
         obj = json.loads(resp["msg"])
         self.assertEqual(obj["failover_state"], "STOP")
 
-    def test_03_01_manual_failover(self):
-        iblock("\nPress ENTER to manually start peer config (lv1.01) ...")
-        idx = (1, 1)
-        ctrl = ldmsdInbandConfig(host = "localhost",
-                                 port = LVX_port(*idx),
-                                 xprt = XPRT)
-        ctrl.comm("failover_peercfg_start")
-        ctrl.close()
-        time.sleep(1)
-        iblock("\nPress ENTER to veirfy")
-        self.__verify(*(1, 1), failover=True)
-        self.__verify(*(1, 0), failover=False)
-
-    def test_04_00_restart_ag10(self):
-        idx = (1, 0)
-        ldmsd = self.ldmsds[idx]
-        prdcr = LVX_prdcr(*idx)
-        iblock("\nPress ENTER to terminate %s" % prdcr)
-        del(ldmsd)
-        time.sleep(4 * (INTERVAL/1000000.0))
-        iblock("\nPress ENTER to start %s" % prdcr)
-        ldmsd = LVX_ldmsd_new(*idx)
-        self.ldmsds[idx] = ldmsd
-        log.info("Resurrecting %s" % LVX_prdcr(*idx))
-        ldmsd.run()
-        time.sleep(4 * (INTERVAL/1000000.0))
-        iblock("\nPress ENTER to verify")
-        # agg10 must have no sets (still waiting for agg11 to stop peercfg),
-        # while agg11 has all the sets
-        self.__verify(*(1, 0), empty=True)
-        self.__verify(*(1, 1), failover=True)
-
-    def test_04_01_manual_failback(self):
-        iblock("\nPress ENTER to manually stop peer config (lv1.01) ...")
-        idx = (1, 1)
-        ctrl = ldmsdInbandConfig(host = "localhost",
-                                 port = LVX_port(*idx),
-                                 xprt = XPRT)
-        ctrl.comm("failover_peercfg_stop")
-        ctrl.close()
-        time.sleep(4 * (INTERVAL/1000000.0))
-        iblock("\nPress ENTER to verify ...")
-        # agg10 and agg11 must only now work on their own config workload
-        self.__verify(*(1, 0))
-        self.__verify(*(1, 1))
-
     def test_05_bad_pair(self):
         port = LVX_port(1, 0)
         pname = LVX_prdcr(1, 0)
@@ -424,9 +375,6 @@ class TestLDMSDFailover(unittest.TestCase):
         self.assertEqual(int(obj['flags']['PEERCFG_RECEIVED']), 0)
 
 if __name__ == "__main__":
-    start = os.getenv("PYTHONSTARTUP")
-    if start:
-        execfile(start)
     fmt = "%(asctime)s.%(msecs)d %(levelname)s: %(message)s"
     datefmt = "%F %T"
     logging.basicConfig(

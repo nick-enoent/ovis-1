@@ -52,7 +52,6 @@
 #   - munged, munge
 #   - run as root
 
-from past.builtins import execfile
 from builtins import range
 from builtins import object
 import re
@@ -64,7 +63,7 @@ import time
 import shutil
 import logging
 import unittest
-from subprocess import Popen, PIPE, STDOUT
+from subprocess import Popen, PIPE, STDOUT, DEVNULL
 
 from distutils.spawn import find_executable
 
@@ -125,10 +124,9 @@ class Munged(object):
             '--key-file', self.keyfile,
             #'--pid-file', self.pidfile,
         ]
-        null = open(os.devnull, "r+")
         self.proc = Popen(args,
-                          stdin = open(os.devnull, 'r'),
-                          stdout = open(self.log, 'w'),
+                          stdin = DEVNULL,
+                          stdout = DEVNULL,
                           stderr = STDOUT,
                           preexec_fn = self._preexec)
 
@@ -165,7 +163,7 @@ def ldms_ls(xprt, port, auth, auth_opt=None, uid=os.getuid(), gid=os.getgid()):
         os.setuid(uid)
     p = Popen(args, stdin=PIPE, stdout=PIPE, stderr=STDOUT, preexec_fn=_px)
     sout, serr = p.communicate()
-    return sout.splitlines()
+    return sout.decode().splitlines()
 
 class TestLDMSAuthMunge(unittest.TestCase):
     XPRT = "sock"
@@ -230,7 +228,7 @@ class TestLDMSAuthMunge(unittest.TestCase):
         dirs = ldms_ls(self.XPRT, self.PORT, self.AUTH, self.AUTH_OPT)
         _dirs = []
         for d in dirs:
-            _dirs.append(d.decode())
+            _dirs.append(d)
         self.assertEqual(_dirs, ['smp/vmstat', 'smp/meminfo'])
 
     def test_02(self):
@@ -249,9 +247,6 @@ class TestLDMSAuthMunge(unittest.TestCase):
         self.assertEqual(dirs, [])
 
 if __name__ == "__main__":
-    start = os.getenv("PYTHONSTARTUP")
-    if start:
-        execfile(start)
     fmt = "%(asctime)s.%(msecs)d %(levelname)s: %(message)s"
     datefmt = "%F %T"
     logging.basicConfig(

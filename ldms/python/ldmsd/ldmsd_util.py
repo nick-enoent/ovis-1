@@ -55,13 +55,10 @@ Created on Apr 28, 2015
 @module ovis_test_util
   Utility for OVIS test infrastructure
 """
-from future import standard_library
-standard_library.install_aliases()
 from builtins import str
-from past.builtins import basestring
 from builtins import object
 import shlex
-from subprocess import Popen, PIPE, STDOUT
+from subprocess import Popen, PIPE, STDOUT, DEVNULL
 import re
 import os
 import time
@@ -127,7 +124,7 @@ def bash_exec(bash_cmd):
     return sh_exec(cmd)
 
 def ssh_exec(host, cmd, ssh_options = None):
-    if not isinstance(host, basestring):
+    if not isinstance(host, str):
         raise TypeError("'host' must be a string")
     cmd_s = "ssh"
     if ssh_options is not None:
@@ -157,7 +154,7 @@ def pdsh_exec(hosts_s, cmd, max_thr = 32, pdsh_options = None):
 
     @return: [pdsh returncode, pdsh stdout string, pdsh stderr string]
     """
-    if not isinstance(hosts_s, basestring):
+    if not isinstance(hosts_s, str):
         raise TypeError("hosts_s must be a string, not {0}".format(type(hosts_s)))
 
     cmd_s = "pdsh"
@@ -418,9 +415,9 @@ class LDMSD(object):
         if self.proc:
             raise RuntimeError("LDMSD already running")
         self.proc = Popen(self.cmd_args,
-                          stdin=open(os.devnull, "r"),
-                          stdout=open(os.devnull, "w"),
-                          stderr=open(os.devnull, "w"),
+                          stdin=DEVNULL,
+                          stdout=DEVNULL,
+                          stderr=DEVNULL,
                           close_fds = True,
                           )
         time.sleep(0.01)

@@ -332,16 +332,16 @@ class ldmsdInbandConfig(ldmsdConfig):
                 _attrs["name"] = LDMSD_Req_Attr(attr_name = "name", value = str(_args['name']))
                 _args.pop('name')
             l = list()
-            for k, v in _args.iteritems():
+            for k, v in _args.items():
                 l.append("%s=%s" % (str(k), str(v)))
             _attrs["string"] = LDMSD_Req_Attr(attr_id = LDMSD_Req_Attr.STRING, value = " ".join(l))
         elif cmd == "env":
             l = list()
-            for k, v in _args.iteritems():
+            for k, v in _args.items():
                 l.append("%s=%s" % (str(k), str(v)))
             _attrs["string"] = LDMSD_Req_Attr(attr_id = LDMSD_Req_Attr.STRING, value = " ".join(l))
         else:
-            for k, v in _args.iteritems():
+            for k, v in _args.items():
                 _k = str(k)
                 a = LDMSD_Req_Attr(attr_name = _k, value = str(v))
                 _attrs[_k] = a
