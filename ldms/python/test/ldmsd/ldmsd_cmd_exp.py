@@ -49,8 +49,6 @@
 
 # This file contains test cases for ldmsd configuration files
 
-from future import standard_library
-standard_library.install_aliases()
 import logging
 import unittest
 import threading

@@ -1903,6 +1903,11 @@ cdef class Xprt(object):
         Py_INCREF(tpl)
         rc = ldms_xprt_lookup(self.xprt, BYTES(name), flags,
                               lookup_cb, <void*>tpl)
+        if rc:
+            # synchronously failed
+            Py_DECREF(tpl)
+            raise RuntimeError("ldms_xprt_lookup() failed, rc: {}" \
+                               .format(ERRNO_SYM(rc)))
         if cb:
             return
         # else, release the GIL and wait

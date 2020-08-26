@@ -49,7 +49,6 @@
 
 # Test LDMSD with ldms_auth_ovis library for legacy ovis_auth support
 
-from past.builtins import execfile
 from builtins import object
 import logging
 import unittest
@@ -167,9 +166,6 @@ class TestLDMSAuthOvis(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    start = os.getenv("PYTHONSTARTUP")
-    if start:
-        execfile(start)
     fmt = "%(asctime)s.%(msecs)d %(levelname)s: %(message)s"
     datefmt = "%F %T"
     logging.basicConfig(
