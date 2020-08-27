@@ -498,6 +498,7 @@ class LDMSD_Controller(object):
             return True
         else:
             return False
+
     def run(self):
         """Run ldmsd_controller subprocess"""
         if self.proc:

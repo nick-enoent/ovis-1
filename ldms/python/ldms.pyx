@@ -754,8 +754,6 @@ cdef void xprt_cb(ldms_t _x, ldms_xprt_event *e, void *arg) with gil:
     else:
         raise RuntimeError("Bad event")
     sem_post(&x._conn_sem)
-    if e.type == EVENT_DISCONNECTED:
-        Py_DECREF(x) # taken when CONNECTED
 
 
 # This is the C callback function for passive transports (the listening
