@@ -1,0 +1,17 @@
+#################################################
+# Variables exporting to sampler subdirectories #
+#################################################
+
+SAMPLER_CFLAGS = -I$(top_srcdir) \
+                 -I$(top_builddir) \
+                 -I$(top_srcdir)/lib/src \
+                 -I$(top_srcdir)/ldms/src \
+                 -I$(top_srcdir)/ldms/src/core \
+                 -I$(top_srcdir)/ldms/src/ldmsd \
+		 -I$(top_srcdir)/ldms/src/sampler
+export SAMPLER_CFLAGS
+
+SAMPLER_LIBADD = $(top_builddir)/ldms/src/sampler/libsampler_base.la \
+		 $(top_builddir)/lib/src/coll/libcoll.la
+export SAMPLER_LIBADD
+#---------------------------------------------#

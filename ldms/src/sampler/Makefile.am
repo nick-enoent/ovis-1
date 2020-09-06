@@ -28,37 +28,12 @@ SUBDIRS += ibnet
 endif
 
 if ENABLE_JOBID
-AM_CFLAGS = -DENABLE_JOBID
-JOBID_LIBFLAGS = libjobid.la
-libjobid_la_SOURCES = ldms_jobid.c
-libjobid_la_LIBADD = $(COMMON_LIBADD)
-ldmssamplerinclude_HEADERS += ldms_jobid.h
-pkglib_LTLIBRARIES += libjobid.la
+SUBDIRS += ldms_jobid
 endif
-
-if ENABLE_TSAMPLER
-libtsampler_la_SOURCES = tsampler.c tsampler.h
-libtsampler_la_LIBADD = $(COMMON_LIBADD) \
-			$(top_builddir)/lib/src/ovis_event/libovis_event.la -lpthread
-pkglib_LTLIBRARIES += libtsampler.la
-
-libtimer_base_la_SOURCES = timer_base.c timer_base.h
-libtimer_base_la_LIBADD = $(COMMON_LIBADD) libtsampler.la $(JOBID_LIBFLAGS)
-pkglib_LTLIBRARIES += libtimer_base.la
-
-libhfclock_la_SOURCES = hfclock.c
-libhfclock_la_LIBADD = $(COMMON_LIBADD) libtimer_base.la
-pkglib_LTLIBRARIES += libhfclock.la
 
 if ENABLE_CRAY_POWER_SAMPLER
-libcray_power_sampler_la_SOURCES = cray_power_sampler.c
-libcray_power_sampler_la_CFLAGS = $(AM_CFLAGS)
-libcray_power_sampler_la_LIBADD = $(COMMON_LIBADD) \
-			     libtimer_base.la
-pkglib_LTLIBRARIES += libcray_power_sampler.la
+SUBDIRS += cray_power_sampler
 endif
-
-endif #ENABLE_TSAMPLER
 
 if ENABLE_KGNILND
 SUBDIRS += kgnilnd
@@ -71,17 +46,8 @@ if ENABLE_LOADAVG
 SUBDIRS += loadavg
 endif
 
-
-if ENABLE_CLOCK
-libclock_la_SOURCES = clock.c
-libclock_la_LIBADD = $(COMMON_LIBADD)
-pkglib_LTLIBRARIES += libclock.la
-endif
-
 if ENABLE_FPTRANS
-libfptrans_la_SOURCES = fptrans.c
-libfptrans_la_LIBADD = $(COMMON_LIBADD)
-pkglib_LTLIBRARIES += libfptrans.la
+SUBDIRS += fptrans
 endif
 
 # always include examples
@@ -132,9 +98,7 @@ SUBDIRS += aries_mmr
 endif
 
 if ENABLE_LNET_STATS
-liblnet_stats_la_SOURCES = lnet_stats.c
-liblnet_stats_la_LIBADD = $(COMMON_LIBADD)
-pkglib_LTLIBRARIES += liblnet_stats.la
+SUBDIRS += lnet_stats
 endif
 
 if ENABLE_MEMINFO
@@ -142,33 +106,15 @@ SUBDIRS += meminfo
 endif
 
 if ENABLE_MSR_INTERLAGOS
-libmsr_interlagos_la_SOURCES = msr_interlagos.c
-libmsr_interlagos_la_LIBADD = $(COMMON_LIBADD) -lpthread
-pkglib_LTLIBRARIES += libmsr_interlagos.la
+SUBDIRS += msr_interlagos
 endif
 
 if ENABLE_SWITCHX
-libswitchx_la_SOURCES = switchx.c
-libswitchx_la_LIBADD = $(COMMON_LIBADD) \
-	$(SWITCHX_LIBDIR)/libsxapi.a \
-	$(SWITCHX_LIBDIR)/libsxutils.a \
-	$(SWITCHX_LIBDIR)/libsxdemadparser.a \
-	$(SWITCHX_LIBDIR)/libsxcomp.a \
-	$(SWITCHX_LIBDIR)/libsxdev.a \
-	$(SWITCHX_LIBDIR)/libcommon.a \
-	$(SWITCHX_LIBDIR)/libsxlog.a \
-	$(SWITCHX_LIBDIR)/libibmad.a \
-	$(SWITCHX_LIBDIR)/libibumad.a \
-	$(SWITCHX_LIBDIR)/libosmcomp.a
-libswitchx_la_CFLAGS = $(AM_CFLAGS) \
-	-I$(SWITCHX_LIBDIR)/../usr/include
-pkglib_LTLIBRARIES += libswitchx.la
+SUBDIRS += switchx
 endif
 
 if ENABLE_PERFEVENT
-libperfevent_la_SOURCES = perfevent.c
-libperfevent_la_LIBADD = $(COMMON_LIBADD) -lm
-pkglib_LTLIBRARIES += libperfevent.la
+SUBDIRS += perfevent
 endif
 
 if ENABLE_HWEVENTPAPI
@@ -180,10 +126,6 @@ pkglib_LTLIBRARIES += libhweventpapi.la
 endif
 
 if ENABLE_APPINFO
-libappinfo_la_SOURCES = appinfo.c
-libappinfo_la_CFLAGS = $(AM_CFLAGS) -I$(srcdir)/appinfo_lib
-libappinfo_la_LIBADD = $(COMMON_LIBADD)
-pkglib_LTLIBRARIES += libappinfo.la
 SUBDIRS += appinfo_lib
 endif
 
@@ -200,9 +142,7 @@ pkglib_LTLIBRARIES += librapl.la
 endif
 
 if ENABLE_PROCDISKSTATS
-libprocdiskstats_la_SOURCES = procdiskstats.c
-libprocdiskstats_la_LIBADD = $(COMMON_LIBADD)
-pkglib_LTLIBRARIES += libprocdiskstats.la
+SUBDIRS += procdiskstats
 endif
 
 if ENABLE_PROCINTERRUPTS
@@ -210,15 +150,11 @@ SUBDIRS += procinterrupts
 endif
 
 if ENABLE_PROCNETDEV
-libprocnetdev_la_SOURCES = procnetdev.c
-libprocnetdev_la_LIBADD = $(COMMON_LIBADD)
-pkglib_LTLIBRARIES += libprocnetdev.la
+SUBDIRS += procnetdev
 endif
 
 if ENABLE_PROCNFS
-libprocnfs_la_SOURCES = procnfs.c
-libprocnfs_la_LIBADD = $(COMMON_LIBADD)
-pkglib_LTLIBRARIES += libprocnfs.la
+SUBDIRS += procnfs
 endif
 
 if ENABLE_FILESINGLE
@@ -234,9 +170,7 @@ SUBDIRS += dstat
 endif
 
 if ENABLE_SYSCLASSIB
-libsysclassib_la_SOURCES = sysclassib.c
-libsysclassib_la_LIBADD = $(COMMON_LIBADD) -libmad -libumad
-pkglib_LTLIBRARIES += libsysclassib.la
+SUBDIRS += sysclassib
 endif
 
 if ENABLE_OPA2
@@ -249,22 +183,15 @@ pkglib_LTLIBRARIES += libopa2.la
 endif
 
 if ENABLE_ATASMART
-libsampler_atasmart_la_SOURCES = sampler_atasmart.c
-libsampler_atasmart_la_LIBADD = $(COMMON_LIBADD) -latasmart
-pkglib_LTLIBRARIES += libsampler_atasmart.la
+SUBDIRS += sampler_atasmart
 endif
 
 if ENABLE_GENERIC_SAMPLER
-libgeneric_sampler_la_SOURCES = generic_sampler.c
-libgeneric_sampler_la_LIBADD = $(COMMON_LIBADD) \
-			       $(top_builddir)/lib/src/coll/libcoll.la
-pkglib_LTLIBRARIES += libgeneric_sampler.la
+SUBDIRS += generic_sampler
 endif
 
-if ENABLE_GRPTEST_LDMS_TEST
-libgrptest_la_SOURCES = grptest.c
-libgrptest_la_LIBADD = $(COMMON_LIBADD)
-pkglib_LTLIBRARIES += libgrptest.la
+if ENABLE_LDMS_TEST
+SUBDIRS += test-samplers
 endif
 
 if ENABLE_SYSPAPI_SAMPLER
