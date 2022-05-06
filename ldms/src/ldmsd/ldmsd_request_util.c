@@ -102,6 +102,7 @@ const struct req_str_id req_str_id_table[] = {
 	{  "prdcr_unsubscribe",  LDMSD_PRDCR_UNSUBSCRIBE_REQ },
 	{  "set_route",          LDMSD_SET_ROUTE_REQ  },
 	{  "set_stats",          LDMSD_SET_STATS_REQ  },
+	{  "cpu_load",           LDMSD_CPU_LOAD_REQ },
 	{  "setgroup_add",       LDMSD_SETGROUP_ADD_REQ  },
 	{  "setgroup_del",       LDMSD_SETGROUP_DEL_REQ  },
 	{  "setgroup_ins",       LDMSD_SETGROUP_INS_REQ  },

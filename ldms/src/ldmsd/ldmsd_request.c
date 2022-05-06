@@ -219,6 +219,7 @@ static int xprt_stats_handler(ldmsd_req_ctxt_t req_ctxt);
 static int prdcr_stats_handler(ldmsd_req_ctxt_t req_ctxt);
 static int thread_stats_handler(ldmsd_req_ctxt_t req_ctxt);
 static int set_stats_handler(ldmsd_req_ctxt_t req_ctxt);
+static int cpu_load_handler(ldmsd_req_ctxt_t req_ctxt);
 static int unimplemented_handler(ldmsd_req_ctxt_t req_ctxt);
 static int eperm_handler(ldmsd_req_ctxt_t req_ctxt);
 static int ebusy_handler(ldmsd_req_ctxt_t reqc);
@@ -457,6 +458,9 @@ static struct request_handler_entry request_handler[] = {
 	},
 	[LDMSD_SET_STATS_REQ] = {
 		LDMSD_SET_STATS_REQ, set_stats_handler, XALL
+	},
+	[LDMSD_CPU_LOAD_REQ] = {
+		LDMSD_CPU_LOAD_REQ, cpu_load_handler, XALL
 	},
 
 	[LDMSD_SET_DEFAULT_AUTHZ_REQ] = {
@@ -5711,6 +5715,62 @@ struct op_summary {
 	sz -= len;						\
 	break;							\
 } while(1)
+
+static char * __cpu_load_as_json(size_t *json_sz)
+{
+	char *buff, *s;
+	size_t sz = __APPEND_SZ;
+	ldmsd_cpu_info_t cpu_info;
+
+	cpu_info = ldmsd_cpu_info_get();
+	buff = malloc(sz);
+	s = buff;
+
+	__APPEND("{");
+	__APPEND(" \"name\": %s,\n", cpu_info->name);
+	__APPEND(" \"state\": %c, \n", cpu_info->state);
+	__APPEND(" \"user_time\": %lu, \n", cpu_info->utime);
+	__APPEND(" \"system_time\": %lu, \n", cpu_info->stime);
+	__APPEND("}");
+
+	*json_sz = s - buff + 1;
+	return buff;
+
+__APPEND_ERR:
+	return NULL;
+}
+
+static int cpu_load_handler(ldmsd_req_ctxt_t req)
+{
+	char *json_s;
+	size_t json_sz;
+	struct ldmsd_req_attr_s attr;
+
+	json_s = __cpu_load_as_json(&json_sz);
+	if (!json_s)
+		goto err;
+
+	attr.discrim = 1;
+	attr.attr_id = LDMSD_ATTR_JSON;
+	attr.attr_len = json_sz;
+	ldmsd_hton_req_attr(&attr);
+	if (ldmsd_append_reply(req, (const char *)&attr, sizeof(attr), LDMSD_REQ_SOM_F))
+		goto err;
+	if (ldmsd_append_reply(req, json_s, json_sz, 0))
+		goto err;
+	attr.discrim = 0;
+	if (ldmsd_append_reply(req, (const char *)&attr, sizeof(attr.discrim), LDMSD_REQ_EOM_F))
+		goto err;
+
+	free(json_s);
+	return 0;
+err:
+	free(json_s);
+	req->errcode = ENOMEM;
+	ldmsd_send_req_response(req, "Memory allocation failure.");
+	return ENOMEM;
+}
+
 
 static char *__xprt_stats_as_json(size_t *json_sz)
 {

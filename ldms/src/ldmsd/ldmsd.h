@@ -482,6 +482,13 @@ struct ldmsd_strgp {
 	strgp_update_fn_t update_fn;
 };
 
+typedef struct ldmsd_cpu_info {
+	const char *name;
+	char state;
+	long unsigned utime;
+	long unsigned stime;
+} *ldmsd_cpu_info_t;
+
 typedef struct ldmsd_set_info {
 	ldms_set_t set;
 	char *origin_name;
@@ -499,6 +506,13 @@ typedef struct ldmsd_set_info {
 		ldmsd_prdcr_set_t prd_set;
 	};
 } *ldmsd_set_info_t;
+
+/**
+ *\brief Get the cpu load information
+ *
+ *\return pointer to struct ldmsd_cpu_info is returned.
+ */
+ldmsd_cpu_info_t ldmsd_cpu_info_get();
 
 /**
  * \brief Get the set information

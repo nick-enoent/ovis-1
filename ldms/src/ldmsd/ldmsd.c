@@ -1175,6 +1175,37 @@ void __transaction_end_time_get(struct timeval *start, struct timeval *dur,
 }
 
 /*
+ * Get CPU load info for node the daemon is operating on
+ *
+ */
+ldmsd_cpu_info_t ldmsd_cpu_info_get()
+{
+	ldmsd_cpu_info_t info;
+	//int np = sysconf(_SC_NPROCESSORS_ONLN);
+	FILE *fp;
+	char state;
+	long unsigned utime, stime;
+	char pathdir[25];
+
+
+	info = calloc(1, sizeof(*info));
+	if (!info)
+		return NULL;
+
+	sprintf(pathdir, "/proc/%d/stat", (int)getpid());
+	printf("%s\n", pathdir);
+	fp = fopen(pathdir, "r");
+	fscanf(fp, "%*d %*s %c %*d %*d %*d %*d %*d %*u %*u %*u %*u %*u %lu %lu", &state, &utime, &stime);
+	utime = utime / sysconf(_SC_CLK_TCK);
+	stime = stime / sysconf(_SC_CLK_TCK);
+	info->name = ldmsd_myname_get();
+	info->state = state;
+	info->utime = utime;
+	info->stime = stime;
+	return info;
+}
+
+/*
  * Get the set information
  *
  * When \c info is unused, ldmsd_set_info_delete() must be called to free \c info.

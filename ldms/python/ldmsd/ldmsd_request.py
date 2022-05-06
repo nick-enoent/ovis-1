@@ -342,6 +342,7 @@ class LDMSD_Request(object):
     SET_STATS = 0x600 + 15
     LISTEN = 0x600 + 16
     SET_DEFAULT_AUTHZ = 0x600 + 17
+    CPU_LOAD = 0x600 + 19
 
     FAILOVER_CONFIG        = 0x700
     FAILOVER_PEERCFG_START = 0x700  +  1
@@ -429,16 +430,17 @@ class LDMSD_Request(object):
             'failover_status'        : {'id' : FAILOVER_STATUS},
             'failover_start'         : {'id' : FAILOVER_START},
             'failover_stop'          : {'id' : FAILOVER_STOP},
-            'set_route'     :  {'id': SET_ROUTE},
+            'set_route'     :  {'id' : SET_ROUTE},
+            'cpu_load'      :  {'id' : CPU_LOAD},
             'xprt_stats'    :  {'id' : XPRT_STATS},
             'thread_stats'  :  {'id' : THREAD_STATS},
             'prdcr_stats'   :  {'id' : PRDCR_STATS},
             'set_stats'     :  {'id' : SET_STATS},
-            'setgroup_add'  :  {'id':  SETGROUP_ADD},
-            'setgroup_mod'  :  {'id':  SETGROUP_MOD},
-            'setgroup_del'  :  {'id':  SETGROUP_DEL},
-            'setgroup_ins'  :  {'id':  SETGROUP_INS},
-            'setgroup_rm'   :  {'id':  SETGROUP_RM},
+            'setgroup_add'  :  {'id' :  SETGROUP_ADD},
+            'setgroup_mod'  :  {'id' :  SETGROUP_MOD},
+            'setgroup_del'  :  {'id' :  SETGROUP_DEL},
+            'setgroup_ins'  :  {'id' :  SETGROUP_INS},
+            'setgroup_rm'   :  {'id' :  SETGROUP_RM},
 
             'publish'       :  {'id': STREAM_PUBLISH },
             'subscribe'     :  {'id' : STREAM_SUBSCRIBE },
