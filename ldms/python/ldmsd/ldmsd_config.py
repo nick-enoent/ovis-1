@@ -96,24 +96,6 @@ class ldmsdConfig(object):
         """
         self.socket.close()
 
-    def get_cmd_attr_list(self, cmd_verb):
-        """Return the dictionary of command attributes
-
-        If there are no required/optional attributes, the value of the
-        'req'/'opt' key is None. Otherweise, the value is a list of attribute
-        names.
-
-        @return: {'req': [], 'opt': []}
-        """
-        attr_dict = {'req': None, 'opt': None}
-        if 'req_attr' in LDMSD_CTRL_CMD_MAP[cmd_verb]:
-            if len(LDMSD_CTRL_CMD_MAP[cmd_verb]['req_attr']) > 0:
-                attr_dict['req'] = LDMSD_CTRL_CMD_MAP[cmd_verb]['req_attr']
-        if 'opt_attr' in LDMSD_CTRL_CMD_MAP[cmd_verb]:
-            if len(LDMSD_CTRL_CMD_MAP[cmd_verb]['opt_attr']) > 0:
-                attr_dict['opt'] = LDMSD_CTRL_CMD_MAP[cmd_verb]['opt_attr']
-        return attr_dict
-
 class ldmsdInbandConfig(ldmsdConfig):
 
     CTRL_STATES = ['INIT', 'NEW', 'CONNECTED', 'CLOSED']
