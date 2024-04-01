@@ -330,7 +330,7 @@ class LdmsdCmdParser(cmd.Cmd):
         """
         arg = self.handle_args('load', arg)
         if arg:
-            rc, msg = self.comm.plugn_load(arg['name'])
+            rc, msg = self.comm.plugn_load(arg['name'], arg['plugin'])
             if rc:
                 print(f'Error loading plugin {arg["name"]}: {msg}')
 
